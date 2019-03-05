@@ -58,26 +58,7 @@ def knnClaissifyer(distDataFrame, k=1):
 
 
 def voteClass(list):
-    #print(list)
-    val0=0
-    val1=0
-    val2=0
-    for i in range(len(list)):
-        if int(list[i])==0:
-           val0 = val0 + 1
-        elif int(list[i])==1:
-           val1 = val1 + 1
-        elif int(list[i])==2:
-           val2 = val2 + 1
-    maxi = 0
-
-    maxi = max(float(val0), float(val1), float(val2))
-    if maxi == val0:
-        return 0
-    elif maxi == val1:
-        return 1
-    else:
-        return 2
+    return max(list, key=list.count)
 
 
 def setClassToTest(testFrame, listClasses):
