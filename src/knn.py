@@ -34,7 +34,7 @@ def DistTrainDataTestData(trainFile, testFile):
     testList = testNumeric.values.tolist()
     for testIndex in range(len(testList)):
         print('\n')
-        print(testList[testIndex])
+        #print(testList[testIndex])
         print('\n')
         listDistance = []
         for trainIndex in range(len(trainList)):
@@ -58,7 +58,7 @@ def knnClaissifyer(distDataFrame, k=1):
 
 
 def voteClass(list):
-    print(list)
+    #print(list)
     val0=0
     val1=0
     val2=0
@@ -82,16 +82,56 @@ def voteClass(list):
 
 def setClassToTest(testFrame, listClasses):
     testFrame['class predicted'] = pandas.Series(listClasses, index=None)
-    print(testFrame)
+    #print(testFrame)
+    return testFrame
+
+def precision(datatest):
+    columnClasses = datatest[['class','class predicted']]
+    numericColumnClasses = columnClasses.apply(pandas.to_numeric)
+    listColumnClasses = numericColumnClasses.values.tolist()
+    TP = 0
+    for i in range(len(listColumnClasses)):
+        #print(listColumnClasses[i][0], listColumnClasses[i][1])
+        if listColumnClasses[i][0] == listColumnClasses[i][1]:
+            TP = TP+1
+    #print(TP)
+    #print(len(listColumnClasses) - TP)
+    return TP/ len(listColumnClasses)
+
+def searchBestK(train, test ):
+    i = 0
+    prec = 0
+    maxPrecision = 0
+    k = 2 * i + 1
+    while k < 50:
+        classes = knnClaissifyer(train, k)
+        prec = precision(setClassToTest(test, classes))
+        if prec > maxPrecision:
+            testclass = setClassToTest(test, classes)
+            maxPrecision = prec
+            bestK = k
+        elif prec == 100:
+            print(setClassToTest(test, classes))
+            return k, prec
+        i = i + 1
+        k = 2 * i + 1
+    print('\n')
+    print(testclass)
+    print('\n')
+    return bestK, maxPrecision
 
 
 #DistTrainDataTestData("../data/iris/iris.trn", "../data/iris/iris.tst")
 train, test = DistTrainDataTestData("../data/iris/iris.trn", "../data/iris/iris.tst")
-classes = knnClaissifyer(train,3)
-print("******************")
-print(classes)
-print("******************")
-setClassToTest(test, classes)
+k, p = searchBestK(train, test)
+print('\n')
+print("Meilleur k :", k, "Meilleur precesion :", p)
+#classes = knnClaissifyer(train,5)
+#print("******************")
+#print(classes)
+#print("******************")
+#setClassToTest(test, classes)
+#print(precision(setClassToTest(test, classes)))
 
 #visualizeData("../data/iris/iris.tst")
 #print(len(readFile("../data/iris/iris.trn")))
