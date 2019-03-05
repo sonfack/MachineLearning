@@ -1,6 +1,6 @@
 import csv
 import pandas
-
+import math
 import numpy as np
 
 
@@ -18,10 +18,10 @@ def readFile(datafile):
 def visualizeData(datafile):
     print(readFile(datafile))
 
-def minkowski(a, b):
+def minkowski(a, b, r=1):
     sum = 0
     for i in range(len(a)):
-        sum = sum + abs(a[i] - b[i])
+        sum = sum + (abs(a[i] - b[i])**(1/r)
     return sum
 
 
