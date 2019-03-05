@@ -4,38 +4,36 @@ import math
 import numpy as np
 
 
-def readFile(datafile):
-    f = open(datafile, 'r')
+def readFile(dataFile, columns):
+    f = open(dataFile, 'r')
     dataList = []
     for x in f:
         x = x.strip('\n')
         ar = x.split(' ')
         dataList.append(ar)
-    df = pandas.DataFrame(np.asarray(dataList), index=None, columns=['x1', 'x2', 'x3', 'x4', 'class'])
+    df = pandas.DataFrame(np.asarray(dataList), index=None, columns=columns)
     return df
 
 
-def visualizeData(datafile):
-    print(readFile(datafile))
+def visualizeData(dataFile, columns):
+    print(readFile(dataFile, columns))
+
 
 def minkowski(a, b, r=1):
     sum = 0
     for i in range(len(a)):
-        sum = sum + (abs(a[i] - b[i])**(1/r)
+        sum = sum + (abs(a[i] - b[i])**(1/r))
     return sum
 
 
-def DistTrainDataTestData(trainFile, testFile):
-    train = readFile(trainFile)
-    trainNumeric = train[['x1','x2','x3','x4']].apply(pandas.to_numeric)
+def DistTrainDataTestData(trainFile, testFile, columns, dataColumns):
+    train = readFile(trainFile, columns)
+    trainNumeric = train[dataColumns].apply(pandas.to_numeric)
     trainList = trainNumeric.values.tolist()
-    test = readFile(testFile)
-    testNumeric = test[['x1','x2','x3','x4']].apply(pandas.to_numeric)
+    test = readFile(testFile, columns)
+    testNumeric = test[dataColumns].apply(pandas.to_numeric)
     testList = testNumeric.values.tolist()
     for testIndex in range(len(testList)):
-        print('\n')
-        #print(testList[testIndex])
-        print('\n')
         listDistance = []
         for trainIndex in range(len(trainList)):
             #print(trainList[trainIndex])
@@ -101,9 +99,9 @@ def searchBestK(train, test ):
     print('\n')
     return bestK, maxPrecision
 
-
+visualizeData("../data/iris/iris.tst", ['x1', 'x2', 'x3', 'x4', 'class'])
 #DistTrainDataTestData("../data/iris/iris.trn", "../data/iris/iris.tst")
-train, test = DistTrainDataTestData("../data/iris/iris.trn", "../data/iris/iris.tst")
+train, test = DistTrainDataTestData("../data/iris/iris.trn", "../data/iris/iris.tst", ['x1', 'x2', 'x3', 'x4', 'class'], ['x1', 'x2', 'x3', 'x4'])
 k, p = searchBestK(train, test)
 print('\n')
 print("Meilleur k :", k, "Meilleur precesion :", p)
@@ -114,7 +112,7 @@ print("Meilleur k :", k, "Meilleur precesion :", p)
 #setClassToTest(test, classes)
 #print(precision(setClassToTest(test, classes)))
 
-#visualizeData("../data/iris/iris.tst")
+#visualizeData("../data/iris/iris.tst", ['x1', 'x2', 'x3', 'x4', 'class'])
 #print(len(readFile("../data/iris/iris.trn")))
 
 exit(0)
