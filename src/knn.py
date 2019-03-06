@@ -36,11 +36,11 @@ def DistTrainDataTestData(trainFile, testFile, columns, dataColumns):
     for testIndex in range(len(testList)):
         listDistance = []
         for trainIndex in range(len(trainList)):
-            #print(trainList[trainIndex])
             listDistance.append(minkowski(testList[testIndex], trainList[trainIndex]))
         train['dist_t'+str(testIndex+1)] = pandas.Series(listDistance, index=None)
     #print(train)
     return train, test
+
 
 def knnClaissifyer(distDataFrame, k=1):
     classes = []
@@ -99,11 +99,31 @@ def searchBestK(train, test ):
     print('\n')
     return bestK, maxPrecision
 
-visualizeData("../data/iris/iris.tst", ['x1', 'x2', 'x3', 'x4', 'class'])
+
+def confusionMat(testFile, r):
+    pass
+
+def splitDataFrame(dataFrame, part=1, partition=2):
+    size = len(dataFrame)*part//partition
+    data = dataFrame[:size]
+    print("**********************************")
+    print(data)
+    return data
+
+
+#visualizeData("../data/iris/iris.tst", ['x1', 'x2', 'x3', 'x4', 'class'])
+#visualizeData("../data/letter/let.tst", ['x1', 'x2', 'x3', 'x4','x5','x6','x7','x8', 'x9', 'x10', 'x11','x12','x13','x14','x15','x16', 'class'])
+
 #DistTrainDataTestData("../data/iris/iris.trn", "../data/iris/iris.tst")
 train, test = DistTrainDataTestData("../data/iris/iris.trn", "../data/iris/iris.tst", ['x1', 'x2', 'x3', 'x4', 'class'], ['x1', 'x2', 'x3', 'x4'])
+
+
+exit()
+'''train, test = DistTrainDataTestData("../data/letter/let.trn", "../data/letter/let.tst", ['x1', 'x2', 'x3', 'x4','x5','x6','x7','x8', 'x9', 'x10', 'x11','x12','x13','x14','x15','x16'
+    , 'class'], ['x1', 'x2', 'x3', 'x4','x5','x6','x7','x8', 'x9', 'x10', 'x11','x12','x13','x14','x15','x16'])
 k, p = searchBestK(train, test)
 print('\n')
+'''
 print("Meilleur k :", k, "Meilleur precesion :", p)
 #classes = knnClaissifyer(train,5)
 #print("******************")
