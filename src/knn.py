@@ -38,20 +38,19 @@ def DistTrainDataTestData(trainFile, testFile, columns, dataColumns):
         for trainIndex in range(len(trainList)):
             listDistance.append(minkowski(testList[testIndex], trainList[trainIndex]))
         train['dist_t'+str(testIndex+1)] = pandas.Series(listDistance, index=None)
-    #print(train)
+
     return train, test
 
 
-def knnClaissifyer(distDataFrame, k=1):
+def knnClaissifyer(distDataFrame, testFrame, k=1):
     classes = []
-    for j in range(50):
+    for j in range(len(testFrame)):
         listtrie = distDataFrame.sort_values(by=['dist_t'+str(j+1)])
-        #print(listtrie)
         list  = []
         for i in range(k):
             list.append(listtrie.iloc[i][4])
         classes.append(voteClass(list))
-    #print(classes)
+    classes = [int(x) for x in classes]
     return classes
 
 
@@ -61,7 +60,6 @@ def voteClass(list):
 
 def setClassToTest(testFrame, listClasses):
     testFrame['class predicted'] = pandas.Series(listClasses, index=None)
-    #print(testFrame)
     return testFrame
 
 def precision(datatest):
@@ -79,51 +77,65 @@ def precision(datatest):
 
 def searchBestK(train, test ):
     i = 0
-    prec = 0
     maxPrecision = 0
     k = 2 * i + 1
-    while k < 50:
-        classes = knnClaissifyer(train, k)
+    while k < len(test):
+        classes = knnClaissifyer(train,test, k)
         prec = precision(setClassToTest(test, classes))
-        if prec > maxPrecision:
+        print(prec)
+        if prec >= maxPrecision:
             testclass = setClassToTest(test, classes)
             maxPrecision = prec
             bestK = k
-        elif prec == 100:
-            print(setClassToTest(test, classes))
-            return k, prec
+            bestClass = testclass
+
         i = i + 1
         k = 2 * i + 1
-    print('\n')
-    print(testclass)
-    print('\n')
-    return bestK, maxPrecision
 
+    return bestClass, bestK, maxPrecision
 
-def confusionMat(testFile, r):
+def confusionMat(testFile, L=1, K=3):
     pass
 
-def splitDataFrame(dataFrame, part=1, partition=2):
-    size = len(dataFrame)*part//partition
-    data = dataFrame[:size]
-    print("**********************************")
-    print(data)
-    return data
+"""
+part : the number of part you will like to first retreive
+partition: the number of partitions you will like to have 
 
+"""
+
+def splitDataFrame(trainFile, columns, dataColumns, part=2, partition=3):
+    dataFrame = readFile(trainFile, columns)
+    size = len(dataFrame)*part//partition
+    train = dataFrame[:size].copy()
+    evaluation = dataFrame[size:].copy()
+    evaluation = evaluation.reset_index(drop=True)
+    trainNumeric = train[dataColumns].apply(pandas.to_numeric)
+    trainList = trainNumeric.values.tolist()
+    print(len(trainList))
+    evaluationNumeric = evaluation[dataColumns].apply(pandas.to_numeric)
+    evaluationList = evaluationNumeric.values.tolist()
+    print(len(evaluationList))
+    for evaluationIndex in range(len(evaluationList)):
+        listDistance = []
+        for trainIndex in range(len(trainList)):
+            listDistance.append(minkowski(evaluationList[evaluationIndex], trainList[trainIndex]))
+        train['dist_t' + str(evaluationIndex + 1)] = pandas.Series(listDistance, index=None)
+
+    return train, evaluation
 
 #visualizeData("../data/iris/iris.tst", ['x1', 'x2', 'x3', 'x4', 'class'])
 #visualizeData("../data/letter/let.tst", ['x1', 'x2', 'x3', 'x4','x5','x6','x7','x8', 'x9', 'x10', 'x11','x12','x13','x14','x15','x16', 'class'])
 
 #DistTrainDataTestData("../data/iris/iris.trn", "../data/iris/iris.tst")
-train, test = DistTrainDataTestData("../data/iris/iris.trn", "../data/iris/iris.tst", ['x1', 'x2', 'x3', 'x4', 'class'], ['x1', 'x2', 'x3', 'x4'])
+#train, test = DistTrainDataTestData("../data/iris/iris.trn", "../data/iris/iris.tst", ['x1', 'x2', 'x3', 'x4', 'class'], ['x1', 'x2', 'x3', 'x4'])
+train, evaluation = splitDataFrame("../data/iris/iris.trn", ['x1', 'x2', 'x3', 'x4', 'class'], ['x1', 'x2', 'x3', 'x4'])
 
+print(train)
+print(evaluation)
 
-exit()
-'''train, test = DistTrainDataTestData("../data/letter/let.trn", "../data/letter/let.tst", ['x1', 'x2', 'x3', 'x4','x5','x6','x7','x8', 'x9', 'x10', 'x11','x12','x13','x14','x15','x16'
-    , 'class'], ['x1', 'x2', 'x3', 'x4','x5','x6','x7','x8', 'x9', 'x10', 'x11','x12','x13','x14','x15','x16'])
-k, p = searchBestK(train, test)
-print('\n')
-'''
+bestclass, k, p = searchBestK(train, evaluation)
+
+print(bestclass)
 print("Meilleur k :", k, "Meilleur precesion :", p)
 #classes = knnClaissifyer(train,5)
 #print("******************")
